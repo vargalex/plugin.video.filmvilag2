@@ -64,13 +64,13 @@ class navigator:
                 spans = client.parseDOM(editorArea, 'div')
             extInfo = ''
             for span in spans:
-                extInfo += client.replaceHTMLCodes(span).encode('utf-8')
+                extInfo += client.replaceHTMLCodes(span).encode('utf-8').replace("&nbsp;", "")
             matches = re.search(r'^(.*), ([0-9]*) perc,(.*)([1-2][0-9]{3})(.*)$', extInfo.strip(), re.S)
             #xtraInfo = re.search(r'^(.*)\((.*)\)(.*)$', extInfo.strip(), re.S)
             xtraInfo = re.search(r'^(.*)color: rgb\(255, 0, 0\)(.*)>(.*)</span>(.*)$', editorArea, re.S)
             extraInfo = ""
             if xtraInfo != None:
-                extraInfo = " | [COLOR red]%s[/COLOR]" % xtraInfo.group(3).encode('utf-8')
+                extraInfo = " | [COLOR red]%s[/COLOR]" % xtraInfo.group(3).encode('utf-8').replace("&nbsp;", "")
             if matches != None:
                 self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' %(title, matches.group(4), matches.group(1), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), urllib.quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
             else:
