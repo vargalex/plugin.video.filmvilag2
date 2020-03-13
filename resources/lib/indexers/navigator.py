@@ -64,13 +64,13 @@ class navigator:
                 spans = client.parseDOM(editorArea, 'div')
             extInfo = ''
             for span in spans:
-                extInfo += client.replaceHTMLCodes(span).encode('utf-8').replace("&nbsp;", "")
+                extInfo += client.replaceHTMLCodes(span).encode('utf-8')
             matches = re.search(r'^(.*), ([0-9]*) perc,(.*)([1-2][0-9]{3})(.*)$', extInfo.strip(), re.S)
             #xtraInfo = re.search(r'^(.*)\((.*)\)(.*)$', extInfo.strip(), re.S)
             xtraInfo = re.search(r'^(.*)color: rgb\(255, 0, 0\)(.*)>(.*)</span>(.*)$', editorArea, re.S)
             extraInfo = ""
             if xtraInfo != None:
-                extraInfo = " | [COLOR red]%s[/COLOR]" % xtraInfo.group(3).encode('utf-8').replace("&nbsp;", "")
+                extraInfo = " | [COLOR red]%s[/COLOR]" % client.replaceHTMLCodes(xtraInfo.group(3)).encode('utf-8')
             if matches != None:
                 self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' %(title, matches.group(4), matches.group(1), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), urllib.quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
             else:
@@ -132,7 +132,7 @@ class navigator:
                 plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(client.parseDOM(paragraph, 'span')[0]))    
             elif "</" not in paragraph:
                 plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(paragraph))
-        plot = plot.replace("&nbsp;", "")
+        #plot = plot.replace("&nbsp;", "")
         sources = client.parseDOM(editorArea, 'iframe', ret='src')
         banner = thumb
         sourceCnt = 0
