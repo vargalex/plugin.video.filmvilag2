@@ -42,10 +42,10 @@ class navigator:
                 self.addDirectoryItem(text, 'articles&url=%s' % url, '', 'DefaultFolder.png')
         self.endDirectory()
 
-    def doSearch(self, url, group):
-        search_text = self.getSearchText()
+    def doSearch(self):
+        search_text = self.getText(u'Add meg a keresend\xF5 film c\xEDm\xE9t')
         if search_text != '':
-            self.getItems("" if url == None else url, group, search_text)
+            self.getResults(search_text)
 
     def getArticles(self, url):
         url = "" if url == None else url
@@ -60,88 +60,85 @@ class navigator:
             title = client.parseDOM(heading3, 'a')[0].encode('utf-8')
             editorArea = client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0]
             spans = client.parseDOM(editorArea, 'span')
+            if len(spans) == 0:
+                spans = client.parseDOM(editorArea, 'div')
             extInfo = ''
             for span in spans:
                 extInfo += client.replaceHTMLCodes(span).encode('utf-8')
-            matches = re.search(r'^(.*), ([0-9]*) perc,(.*)([1-2][0-9]{3})(.*)$', extInfo.strip())
-            self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]' %(title, matches.group(4), matches.group(1)), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), urllib.quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
+            matches = re.search(r'^(.*), ([0-9]*) perc,(.*)([1-2][0-9]{3})(.*)$', extInfo.strip(), re.S)
+            #xtraInfo = re.search(r'^(.*)\((.*)\)(.*)$', extInfo.strip(), re.S)
+            xtraInfo = re.search(r'^(.*)color: rgb\(255, 0, 0\)(.*)>(.*)</span>(.*)$', editorArea, re.S)
+            extraInfo = ""
+            if xtraInfo != None:
+                extraInfo = " | [COLOR red]%s[/COLOR]" % xtraInfo.group(3).encode('utf-8')
+            if matches != None:
+                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' %(title, matches.group(4), matches.group(1), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), urllib.quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
+            else:
+                matches = re.search(r'^(.*),(.*)([1-2][0-9]{3})(.*)$', extInfo.strip())
+                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' %(title, matches.group(3), matches.group(1), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
+        listOfPages = client.parseDOM(articlesDiv, 'div', attrs={'class': 'list-of-pages'})
+        if len(listOfPages) > 0:
+            next = client.parseDOM(listOfPages, 'p', attrs={'class': 'next'})
+            if len(next) > 0:
+                nextPage = client.parseDOM(next, 'a', ret='href')
+                if len(nextPage) > 0:
+                    self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal >>[/I]', 'articles&url=%s' % urllib.quote_plus(nextPage[0]), '', 'DefaultFolder.png')
         self.endDirectory('movies')
 
-    def getSeries(self, url, thumb):
-        url_content = client.request('%s%s' %(base_url, url))
-        base = client.parseDOM(url_content, 'div', attrs={'class': 'base'})[0]
-        title = client.replaceHTMLCodes(client.parseDOM(base, 'div', attrs={'class': 'sname'})[0]).encode('utf-8').strip()
-        panel = client.parseDOM(base, 'div', attrs={'class': 'panel'})[0]
-        stand = client.parseDOM(base, 'div', attrs={'class': 'stand'})[0]
-        center = client.parseDOM(stand, 'div', attrs={'class': 'center'})[0]
-        banner = '%s/%s' % (base_url, client.parseDOM(center, 'img', ret='src')[0])
-        desc = client.parseDOM(center, 'div', attrs={'class': 'desc'})[0]
-        plot = client.parseDOM(desc, 'div', attrs={'class': 'text'})[0].encode('utf-8').strip().split('<div')[0]
-        info = client.parseDOM(stand, 'div', attrs={'class': 'info'})[0]
-        time = client.parseDOM(info, 'div', attrs={'class': 'time'})
-        duration = int(client.parseDOM(time[0], 'h1')[0].replace(" Perc", "").strip())*60
-        seasons = client.parseDOM(panel, 'div')[0].replace('</a>', '</a>\n')
-        for season in seasons.splitlines():
-            matches = re.search(r'^<a(.*)class="season"(.*)href="(.*)">(.*)</a>$', season.strip())
-            if matches:
-                self.addDirectoryItem(u'%s. évad' % matches.group(4), 'episodes&url=%s&thumb=%s' % (urllib.quote_plus(matches.group(3)), urllib.quote_plus(thumb)), "%s%s" % (base_url, thumb), 'DefaultMovies.png', meta={'title': title, 'plot': plot, 'duration': duration}, banner=banner)
-        self.endDirectory('tvshows')
-
-    def getEpisodes(self, url, thumb):
-        url_content = client.request('%s%s' %(base_url, url))
-        base = client.parseDOM(url_content, 'div', attrs={'class': 'base'})[0]
-        title = client.replaceHTMLCodes(client.parseDOM(base, 'a', attrs={'class': 'sname'})[0]).encode('utf-8').strip()
-        panel = client.parseDOM(base, 'div', attrs={'class': 'panel'})[0]
-        center = client.parseDOM(base, 'div', attrs={'class': 'center'})[0]
-        banner = '%s/%s' % (base_url, client.parseDOM(center, 'img', ret='src')[0])
-        desc = client.parseDOM(center, 'div', attrs={'class': 'desc'})[0]
-        plot = client.parseDOM(desc, 'div', attrs={'class': 'text'})[0].encode('utf-8').strip().split('<div')[0]
-        info = client.parseDOM(base, 'div', attrs={'class': 'info'})[0]
-        time = client.parseDOM(info, 'div', attrs={'class': 'time'})
-        duration = int(client.parseDOM(time[0], 'h1')[0].replace(" Perc", "").strip())*60
-        episodes = client.parseDOM(panel, 'div')[0].replace('</a>', '</a>\n')
-        for episode in episodes.splitlines():
-            matches = re.search(r'(.*)<a(.*)class="episode([^"]*)"(.*)href="(.*)">(.*)</a>$', episode.strip())
-            if matches:
-                self.addDirectoryItem(u'%s. rész %s' % (matches.group(6), "| [COLOR limegreen]Feliratos[/COLOR]" if matches.group(3) == "f" else ""), 'episode&url=%s&thumb=%s&banner=%s&plot=%s' % (urllib.quote_plus(matches.group(5)), urllib.quote_plus(thumb), urllib.quote_plus(banner), urllib.quote_plus(plot)), "%s%s" % (base_url, thumb), 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': duration}, banner=banner)
-        self.endDirectory('episodes')
-        
-    def getEpisode(self, url, thumb, banner, plot):
-        url_content = client.request('%s%s' %(base_url, url))
-        base = client.parseDOM(url_content, 'div', attrs={'class': 'base'})[0]
-        title = client.replaceHTMLCodes(client.parseDOM(base, 'a', attrs={'class': 'sname'})[0]).encode('utf-8').strip()
-        info = client.parseDOM(base, 'div', attrs={'class': 'info'})[0]
-        time = client.parseDOM(info, 'div', attrs={'class': 'time'})
-        duration = int(client.parseDOM(time[0], 'h1')[0].replace(" Perc", "").strip())*60
-        center = client.parseDOM(base, 'div', attrs={'class': 'center'})[0]
-        sources = client.parseDOM(center, 'div', attrs={'class': 'video'})[0].encode('utf-8') #.replace('</a>', '</a>\n')
-        sources = re.search(r'^(.*)<br>(.*)$', sources, re.MULTILINE).group(1).replace('</a>', '</a>\n')
-        if client.parseDOM(info, 'div', attrs={'class': 'textf'}):
-            feliratos = "| [COLOR limegreen]Feliratos[/COLOR]"
+    def getResults(self, search_text):
+        url_content = client.request(base_url)
+        searchDiv = client.parseDOM(url_content, 'div', attrs={'id': 'search'})
+        innerFrameDiv = client.parseDOM(searchDiv, 'div', attrs={'class': 'inner_frame'})
+        searchURL = client.parseDOM(innerFrameDiv, 'form', ret='action')[0]
+        uid = client.parseDOM(innerFrameDiv, 'input', attrs={'id': 'uid'}, ret='value')[0]
+        url_content = client.request(searchURL, post="uid=%s&key=%s" % (uid, urllib.quote_plus(search_text)))
+        searchResult = client.parseDOM(url_content, 'div', attrs={'class': 'search-results'})
+        resultsUser = client.parseDOM(searchResult, 'div', attrs={'class': 'results-user'})
+        ul = client.parseDOM(resultsUser, 'ul')
+        if len(ul)>0:
+            lis = client.parseDOM(ul, 'li')
+            for li in lis:
+                href = client.parseDOM(li, 'a', ret='href')[0].replace('http://', 'https://').replace(base_url, '')
+                if "filmkeres-es-hibas-link-jelentese.html" not in href:
+                    title = client.parseDOM(li, 'a')[0].encode('utf-8')
+                    self.addDirectoryItem(title, 'movie&url=%s' % urllib.quote_plus(href), '', 'DefaultMovies.png')
+            self.endDirectory('movies')
         else:
-            feliratos = ""
-        sourceCnt = 0
-        for source in sources.splitlines():
-            matches = re.search(r'^<a(.*)href="(.*)">(.*)</a>$', source.strip())
-            if matches:
-                sourceCnt+=1
-                self.addDirectoryItem('%s | [B]%s[/B]%s' % (format(sourceCnt, '02'), matches.group(3), feliratos), 'playmovie&url=%s%s' % (url, urllib.quote_plus(matches.group(2))), "%s%s" % (base_url, thumb), 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': duration}, banner=banner)
-        self.endDirectory('episodes')
+            xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
 
     def getMovie(self, url, thumb, duration):
         url_content = client.request('%s%s' %(base_url, url))
+        if 'class="locked' in url_content:
+            password = xbmcaddon.Addon().getSetting('password')
+            if password == '':
+                password = self.getText(u'Add meg a Cinema World facebook oldalról\nüzenetben kapott kódot!', True)
+                if password == '':
+                    return
+            url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password)
+            while 'class="locked' in url_content:
+                password = self.getText(u'Hibás jelszó! Kérlek pontosan add meg a Cinema World\nfacebook oldalról üzenetben kapott kódot!', True)
+                if password == '':
+                    return
+                url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password)
+            xbmcaddon.Addon().setSetting('password', password)
         article = client.parseDOM(url_content, 'div', attrs={'class': 'article'})[0]
         header = client.parseDOM(article, 'h2')[0]
         title = client.parseDOM(header, 'span')[0]
         editorArea = client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0]
         paragraphs = client.parseDOM(editorArea, 'p')
-        plot = client.parseDOM(paragraphs[len(paragraphs)-3], 'span')[0]
+        plot = ''
+        for paragraph in paragraphs:
+            if "<span" in paragraph:
+                plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(client.parseDOM(paragraph, 'span')[0]))    
+            elif "</" not in paragraph:
+                plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(paragraph))
+        plot = plot.replace("&nbsp;", "")
         sources = client.parseDOM(editorArea, 'iframe', ret='src')
         banner = thumb
         sourceCnt = 0
         for src in sources:
             sourceCnt+=1
-            self.addDirectoryItem('%s | [B]%s[/B]' % (format(sourceCnt, '02'), urlparse.urlparse(src).hostname), 'playmovie&url=%s' % (urllib.quote_plus(src)), "%s%s" % (base_url, thumb), 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(duration)*60}, banner=banner)
+            self.addDirectoryItem('%s | [B]%s[/B]' % (format(sourceCnt, '02'), urlparse.urlparse(src).hostname), 'playmovie&url=%s' % (urllib.quote_plus(src)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(duration)*60}, banner=banner)
         self.endDirectory('movies')
 
     def playmovie(self, url):
@@ -182,9 +179,9 @@ class navigator:
         #xbmcplugin.addSortMethod(syshandle, xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.endOfDirectory(syshandle, cacheToDisc=True)
 
-    def getSearchText(self):
+    def getText(self, title, hidden=False):
         search_text = ''
-        keyb = xbmc.Keyboard('',u'Add meg a keresend\xF5 film c\xEDm\xE9t')
+        keyb = xbmc.Keyboard('', title, hidden)
         keyb.doModal()
 
         if (keyb.isConfirmed()):

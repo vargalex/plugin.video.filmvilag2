@@ -25,19 +25,13 @@ params = dict(urlparse.parse_qsl(sys.argv[2].replace('?','')))
 
 action = params.get('action')
 
-group = params.get('group')
-
 url = params.get('url')
 
 search = params.get('search')
 
-banner = params.get('banner')
-
-plot = params.get('plot')
-
 thumb = params.get('thumb')
 
-duration = params.get('duration')
+duration = 0 if params.get('duration') == None else params.get('duration') 
 
 if action == None:
     from resources.lib.indexers import navigator
@@ -57,16 +51,5 @@ elif action == 'playmovie':
 
 elif action == 'search':
     from resources.lib.indexers import navigator
-    navigator.navigator().doSearch(url, group)
+    navigator.navigator().doSearch()
 
-elif action == 'series':
-    from resources.lib.indexers import navigator
-    navigator.navigator().getSeries(url, thumb)
-
-elif action == 'episodes':
-    from resources.lib.indexers import navigator
-    navigator.navigator().getEpisodes(url, thumb)
-
-elif action == 'episode':
-    from resources.lib.indexers import navigator
-    navigator.navigator().getEpisode(url, thumb, banner, plot)
