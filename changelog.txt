@@ -1,4 +1,6 @@
-﻿[B]1.0.2[/B]
+﻿[B]1.0.3[/B]
+- online film
+[B]1.0.2[/B]
 - BugFix
 [B]1.0.1[/B]
 - weboldal parse-olás javítása

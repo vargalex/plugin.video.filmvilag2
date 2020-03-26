@@ -130,15 +130,17 @@ class navigator:
                 plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(paragraph))
         #plot = plot.replace("&nbsp;", "")
         sources = client.parseDOM(editorArea, 'iframe', ret='src')
+        sources2 = client.parseDOM(editorArea, 'a', ret='href')
         banner = thumb
         sourceCnt = 0
-        for src in sources:
+        for src in sources+sources2:
             sourceCnt+=1
             self.addDirectoryItem('%s | [B]%s[/B]' % (format(sourceCnt, '02'), urlparse.urlparse(src).hostname), 'playmovie&url=%s' % (urllib.quote_plus(src)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(duration)*60}, banner=banner)
         self.endDirectory('movies')
 
     def playmovie(self, url):
-        url = ("http:%s" % url)
+        if "http" not in url:
+            url = ("https:%s" % url)
         xbmc.log('filmvilag: resolving url: %s' % url, xbmc.LOGNOTICE)
         try:
             direct_url = urlresolver.resolve(url)
