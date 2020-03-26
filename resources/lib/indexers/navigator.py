@@ -121,14 +121,28 @@ class navigator:
         header = client.parseDOM(article, 'h2')[0]
         title = client.parseDOM(header, 'span')[0]
         editorArea = client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0]
-        paragraphs = client.parseDOM(editorArea, 'p')
         plot = ''
+        """
+        paragraphs = client.parseDOM(editorArea, 'p')
         for paragraph in paragraphs:
             if "<span" in paragraph:
                 plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(client.parseDOM(paragraph, 'span')[0]))    
             elif "</" not in paragraph:
                 plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(paragraph))
         #plot = plot.replace("&nbsp;", "")
+        """
+        matches=re.findall(r'(?:.*)rgb\(50, 50, 50\)(?:.*)">([^<]*)<(?:.*)', editorArea)
+        if matches != None:
+            plot = '\n'.join(matches)
+            plot = plot.replace('&nbsp;', '')
+        if len(plot.replace(' ', '').replace('\t', '').replace('\r', '').replace('\n', '')) == 0:
+            paragraphs = client.parseDOM(editorArea, 'p')
+            for paragraph in paragraphs:
+                if "<span" in paragraph:
+                    plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(client.parseDOM(paragraph, 'span')[0]))    
+                elif "</" not in paragraph:
+                    plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(paragraph))
+            plot = plot.replace('&nbsp;', '')
         sources = client.parseDOM(editorArea, 'iframe', ret='src')
         sources2 = client.parseDOM(editorArea, 'a', ret='href')
         banner = thumb
