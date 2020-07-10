@@ -1,4 +1,6 @@
-﻿[B]1.0.4[/B]
+﻿[B]1.0.5[/B]
+- Keresési előzmények tárolása
+[B]1.0.4[/B]
 - leírás parse-olásának javítása
 [B]1.0.3[/B]
 - online film

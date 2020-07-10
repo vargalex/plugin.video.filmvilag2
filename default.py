@@ -20,6 +20,7 @@
 
 
 import urlparse,sys, xbmcgui
+from resources.lib.indexers import navigator
 
 params = dict(urlparse.parse_qsl(sys.argv[2].replace('?','')))
 
@@ -34,22 +35,26 @@ thumb = params.get('thumb')
 duration = 0 if params.get('duration') == None else params.get('duration') 
 
 if action == None:
-    from resources.lib.indexers import navigator
     navigator.navigator().getCategories()
 
 elif action == 'articles':
-    from resources.lib.indexers import navigator
     navigator.navigator().getArticles(url)
 
 elif action == 'movie':
-    from resources.lib.indexers import navigator
     navigator.navigator().getMovie(url, thumb, duration)
 
 elif action == 'playmovie':
-    from resources.lib.indexers import navigator
     navigator.navigator().playmovie(url)
 
 elif action == 'search':
-    from resources.lib.indexers import navigator
+    navigator.navigator().getSearches()
+
+elif action == 'historysearch':
+    navigator.navigator().getResults(search)
+
+elif action == 'newsearch':
     navigator.navigator().doSearch()
+
+elif action == 'deletesearchhistory':
+    navigator.navigator().deleteSearchHistory()
 

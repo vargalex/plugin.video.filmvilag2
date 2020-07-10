@@ -19,7 +19,7 @@
 '''
 
 
-import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon,urllib,urlparse,base64,time
+import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon,urllib,urlparse,base64,time, locale
 #import resolveurl as urlresolver
 import urlresolver
 from resources.lib.modules import client
@@ -30,6 +30,11 @@ addonFanart = xbmcaddon.Addon().getAddonInfo('fanart')
 base_url = 'aHR0cHM6Ly93d3cub25saW5lZmlsbXZpbGFnMi5ldS8='.decode('base64')
 
 class navigator:
+    def __init__(self):
+        locale.setlocale(locale.LC_ALL, "")
+        self.base_path = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
+        self.searchFileName = os.path.join(self.base_path, "search.history")
+
     def getCategories(self):
         url_content = client.request(base_url)
         mainMenu=client.parseDOM(url_content, 'menu', attrs={'class': 'menu-type-onmouse'})[0].strip()
@@ -42,9 +47,33 @@ class navigator:
                 self.addDirectoryItem(text, 'articles&url=%s' % url, '', 'DefaultFolder.png')
         self.endDirectory()
 
+    def getSearches(self):
+        self.addDirectoryItem('Új keresés', 'newsearch', '', 'DefaultFolder.png')
+        try:
+            file = open(self.searchFileName, "r")
+            items = file.read().splitlines()
+            items.sort(cmp=locale.strcoll)
+            file.close()
+            for item in items:
+                self.addDirectoryItem(item, 'historysearch&search=%s' % (urllib.quote_plus(item)), '', 'DefaultFolder.png')
+            if len(items) > 0:
+                self.addDirectoryItem('Keresési előzmények törlése', 'deletesearchhistory', '', 'DefaultFolder.png') 
+        except:
+            pass   
+        self.endDirectory()
+
+    def deleteSearchHistory(self):
+        if os.path.exists(self.searchFileName):
+            os.remove(self.searchFileName)
+
     def doSearch(self):
         search_text = self.getText(u'Add meg a keresend\xF5 film c\xEDm\xE9t')
         if search_text != '':
+            if not os.path.exists(self.base_path):
+                os.mkdir(self.base_path)
+            file = open(self.searchFileName, "a")
+            file.write("%s\n" % search_text)
+            file.close()
             self.getResults(search_text)
 
     def getArticles(self, url):
