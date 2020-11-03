@@ -20,7 +20,6 @@
 
 
 import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon,urllib,urlparse,base64,time, locale
-#import resolveurl as urlresolver
 import urlresolver
 from resources.lib.modules import client
 
@@ -40,7 +39,7 @@ class navigator:
 
     def getCategories(self):
         url_content = client.request(base_url)
-        mainMenu=client.parseDOM(url_content, 'menu', attrs={'class': 'menu-type-onmouse'})[0].strip()
+        mainMenu=client.parseDOM(url_content, 'menu')[0].strip()
         menuItems = client.parseDOM(mainMenu, 'li')
         self.addDirectoryItem('Keresés', 'search', '', 'DefaultFolder.png')
         for menuItem in menuItems:

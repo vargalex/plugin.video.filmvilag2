@@ -1,4 +1,6 @@
-﻿[B]1.0.6[B]
+﻿[B]1.0.7[/B]
+- forrás változás követése
+[B]1.0.6[B]
 - Locale bugfix
 [B]1.0.5[/B]
 - Keresési előzmények tárolása
