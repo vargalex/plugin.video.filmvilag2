@@ -1,4 +1,6 @@
-﻿[B]1.0.7[/B]
+﻿[B]1.0.8[/B]
+- HTTP 404-et adnak vissza az oldalak
+[B]1.0.7[/B]
 - forrás változás követése
 [B]1.0.6[B]
 - Locale bugfix

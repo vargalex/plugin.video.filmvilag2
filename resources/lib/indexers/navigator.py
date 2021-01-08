@@ -38,14 +38,14 @@ class navigator:
         self.searchFileName = os.path.join(self.base_path, "search.history")
 
     def getCategories(self):
-        url_content = client.request(base_url)
+        url_content = client.request(base_url, error=True)
         mainMenu=client.parseDOM(url_content, 'menu')[0].strip()
         menuItems = client.parseDOM(mainMenu, 'li')
         self.addDirectoryItem('Keresés', 'search', '', 'DefaultFolder.png')
         for menuItem in menuItems:
             text = client.replaceHTMLCodes(client.parseDOM(menuItem, 'a')[0]).encode('utf-8')
             url = client.parseDOM(menuItem, 'a', ret='href')[0]
-            if not text.startswith(('Kezdőlap', 'Kérjél', 'Támogatás', 'Jogi nyilatkozat')):
+            if not text.startswith(('Kezdőlap', 'Kérjél', 'Támogatás', 'CHAT', 'Jogi nyilatkozat')):
                 self.addDirectoryItem(text, 'articles&url=%s' % url, '', 'DefaultFolder.png')
         self.endDirectory()
 
@@ -80,7 +80,7 @@ class navigator:
 
     def getArticles(self, url):
         url = "" if url == None else url
-        url_content = client.request('%s/%s' % (base_url, url))
+        url_content = client.request('%s/%s' % (base_url, url), error=True)
         articlesDiv = client.parseDOM(url_content, 'div', attrs={'id': 'articles'})[0]
         articles = client.parseDOM(articlesDiv, 'div', attrs={'class': 'article'})
         for article in articles:
@@ -113,12 +113,12 @@ class navigator:
         self.endDirectory('movies')
 
     def getResults(self, search_text):
-        url_content = client.request(base_url)
+        url_content = client.request(base_url, error=True)
         searchDiv = client.parseDOM(url_content, 'div', attrs={'id': 'search'})
         innerFrameDiv = client.parseDOM(searchDiv, 'div', attrs={'class': 'inner_frame'})
         searchURL = client.parseDOM(innerFrameDiv, 'form', ret='action')[0]
         uid = client.parseDOM(innerFrameDiv, 'input', attrs={'id': 'uid'}, ret='value')[0]
-        url_content = client.request(searchURL, post="uid=%s&key=%s" % (uid, urllib.quote_plus(search_text)))
+        url_content = client.request(searchURL, post="uid=%s&key=%s" % (uid, urllib.quote_plus(search_text)), error=True)
         searchResult = client.parseDOM(url_content, 'div', attrs={'class': 'search-results'})
         resultsUser = client.parseDOM(searchResult, 'div', attrs={'class': 'results-user'})
         ul = client.parseDOM(resultsUser, 'ul')
@@ -134,19 +134,19 @@ class navigator:
             xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
 
     def getMovie(self, url, thumb, duration):
-        url_content = client.request('%s%s' %(base_url, url))
+        url_content = client.request('%s%s' %(base_url, url), error=True)
         if 'class="locked' in url_content:
             password = xbmcaddon.Addon().getSetting('password')
             if password == '':
                 password = self.getText(u'Add meg a Cinema World facebook oldalról\nüzenetben kapott kódot!', True)
                 if password == '':
                     return
-            url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password)
+            url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password, error=True)
             while 'class="locked' in url_content:
                 password = self.getText(u'Hibás jelszó! Kérlek pontosan add meg a Cinema World\nfacebook oldalról üzenetben kapott kódot!', True)
                 if password == '':
                     return
-                url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password)
+                url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password, error=True)
             xbmcaddon.Addon().setSetting('password', password)
         article = client.parseDOM(url_content, 'div', attrs={'class': 'article'})[0]
         header = client.parseDOM(article, 'h2')[0]
