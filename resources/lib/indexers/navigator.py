@@ -63,7 +63,7 @@ class navigator:
             items.sort(cmp=locale.strcoll)
             file.close()
             for item in items:
-                self.addDirectoryItem(item, 'historysearch&search=%s' % (urllib.quote_plus(item)), '', 'DefaultFolder.png')
+                self.addDirectoryItem(item, 'historysearch&search=%s' % (quote_plus(item)), '', 'DefaultFolder.png')
             if len(items) > 0:
                 self.addDirectoryItem('Keresési előzmények törlése', 'deletesearchhistory', '', 'DefaultFolder.png') 
         except:
@@ -102,20 +102,20 @@ class navigator:
             if xtraInfo != None:
                 extraInfo = " | [COLOR red]%s[/COLOR]" % xtraInfo.group(3)
             if matches != None:
-                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(5), matches.group(2), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), urllib.quote_plus(matches.group(3))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(3))*60, 'fanart': thumb})
+                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(5), matches.group(2), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), quote_plus(matches.group(3))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(3))*60, 'fanart': thumb})
             else:
                 matches = re.search(r'^(.*)>(.*),(.*)([1-2][0-9]{3})(.*)$', editorArea, re.S)
                 if matches != None:
-                    self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(4), matches.group(2), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
+                    self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(4), matches.group(2), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
                 else:
-                    self.addDirectoryItem('%s | %s' % (title, extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, urllib.quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
+                    self.addDirectoryItem('%s | %s' % (title, extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
         listOfPages = client.parseDOM(articlesDiv, 'div', attrs={'class': 'list-of-pages'})
         if len(listOfPages) > 0:
             next = client.parseDOM(listOfPages, 'p', attrs={'class': 'next'})
             if len(next) > 0:
                 nextPage = client.parseDOM(next, 'a', ret='href')
                 if len(nextPage) > 0:
-                    self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal >>[/I]', 'articles&url=%s' % urllib.quote_plus(nextPage[0]), '', 'DefaultFolder.png')
+                    self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal >>[/I]', 'articles&url=%s' % quote_plus(nextPage[0]), '', 'DefaultFolder.png')
         self.endDirectory('movies')
 
     def getResults(self, search_text):
@@ -124,7 +124,7 @@ class navigator:
         innerFrameDiv = client.parseDOM(searchDiv, 'div', attrs={'class': 'inner_frame'})
         searchURL = client.parseDOM(innerFrameDiv, 'form', ret='action')[0]
         uid = client.parseDOM(innerFrameDiv, 'input', attrs={'id': 'uid'}, ret='value')[0]
-        url_content = client.request(searchURL, post="uid=%s&key=%s" % (uid, urllib.quote_plus(search_text)), error=True)
+        url_content = client.request(searchURL, post="uid=%s&key=%s" % (uid, quote_plus(search_text)), error=True)
         searchResult = client.parseDOM(url_content, 'div', attrs={'class': 'search-results'})
         resultsUser = client.parseDOM(searchResult, 'div', attrs={'class': 'results-user'})
         ul = client.parseDOM(resultsUser, 'ul')
@@ -134,7 +134,7 @@ class navigator:
                 href = client.parseDOM(li, 'a', ret='href')[0].replace('http://', 'https://').replace(base_url, '')
                 if "filmkeres-es-hibas-link-jelentese.html" not in href:
                     title = py2_encode(client.parseDOM(li, 'a')[0])
-                    self.addDirectoryItem(title, 'movie&url=%s' % urllib.quote_plus(href), '', 'DefaultMovies.png')
+                    self.addDirectoryItem(title, 'movie&url=%s' % quote_plus(href), '', 'DefaultMovies.png')
             self.endDirectory('movies')
         else:
             xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
@@ -186,13 +186,13 @@ class navigator:
         sourceCnt = 0
         for src in sources+sources2:
             sourceCnt+=1
-            self.addDirectoryItem('%s | [B]%s[/B]' % (format(sourceCnt, '02'), urlparse.urlparse(src).hostname), 'playmovie&url=%s' % (urllib.quote_plus(src)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(duration)*60}, banner=banner)
+            self.addDirectoryItem('%s | [B]%s[/B]' % (format(sourceCnt, '02'), urlparse.urlparse(src).hostname), 'playmovie&url=%s' % (quote_plus(src)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(duration)*60}, banner=banner)
         self.endDirectory('movies')
 
     def playmovie(self, url):
         if "http" not in url:
             url = ("https:%s" % url)
-        xbmc.log('filmvilag: resolving url: %s' % url, xbmc.LOGNOTICE)
+        xbmc.log('filmvilag: resolving url: %s' % url, xbmc.LOGINFO)
         try:
             direct_url = urlresolver.resolve(url)
             if direct_url:
@@ -200,10 +200,10 @@ class navigator:
             else:
                 direct_url = url
         except Exception as e:
-            xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, e.message)
+            xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, str(e))
             return
         if direct_url:
-            xbmc.log('filmvilag: playing URL: %s' % direct_url, xbmc.LOGNOTICE)
+            xbmc.log('filmvilag: playing URL: %s' % direct_url, xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)
             xbmcplugin.setResolvedUrl(syshandle, True, listitem=play_item)
 
