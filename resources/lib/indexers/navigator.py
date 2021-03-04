@@ -17,16 +17,22 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-
-
-import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon,urllib,urlparse,base64,time, locale
+import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale
 import urlresolver
 from resources.lib.modules import client
+from resources.lib.modules.utils import py2_encode
+
+if sys.version_info[0] == 3:
+    import urllib.parse as urlparse
+    from urllib.parse import quote_plus
+else:
+    import urlparse
+    from urllib import quote_plus
 
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = xbmcaddon.Addon().getAddonInfo('fanart')
 
-base_url = 'aHR0cHM6Ly93d3cub25saW5lZmlsbXZpbGFnMi5ldS8='.decode('base64')
+base_url = 'https://www.onlinefilmvilag2.eu/'
 
 class navigator:
     def __init__(self):
@@ -43,7 +49,7 @@ class navigator:
         menuItems = client.parseDOM(mainMenu, 'li')
         self.addDirectoryItem('Keresés', 'search', '', 'DefaultFolder.png')
         for menuItem in menuItems:
-            text = client.replaceHTMLCodes(client.parseDOM(menuItem, 'a')[0]).encode('utf-8')
+            text = py2_encode(client.replaceHTMLCodes(client.parseDOM(menuItem, 'a')[0]))
             url = client.parseDOM(menuItem, 'a', ret='href')[0]
             if not text.startswith(('Kezdőlap', 'Kérjél', 'Támogatás', 'CHAT', 'Jogi nyilatkozat')):
                 self.addDirectoryItem(text, 'articles&url=%s' % url, '', 'DefaultFolder.png')
@@ -88,8 +94,8 @@ class navigator:
             href = client.parseDOM(article, 'a', ret='href')[0]
             thumb = '%s%s' % (base_url, client.parseDOM(article, 'img', ret='src')[0])
             heading3 = client.parseDOM(article, 'h3')[0]
-            title = client.parseDOM(heading3, 'a')[0].encode('utf-8')
-            editorArea = client.replaceHTMLCodes(client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0]).encode('utf-8').strip()
+            title = py2_encode(client.parseDOM(heading3, 'a')[0])
+            editorArea = py2_encode(client.replaceHTMLCodes(client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0])).strip()
             matches = re.search(r'^(.*)>(.*), ([0-9]*) perc,(.*)([1-2][0-9]{3})(.*)$', editorArea, re.S)
             xtraInfo = re.search(r'^(.*)color: rgb\(255, 0, 0\)(.*)>(.*)</span>(.*)$', editorArea, re.S)
             extraInfo = ""
@@ -127,7 +133,7 @@ class navigator:
             for li in lis:
                 href = client.parseDOM(li, 'a', ret='href')[0].replace('http://', 'https://').replace(base_url, '')
                 if "filmkeres-es-hibas-link-jelentese.html" not in href:
-                    title = client.parseDOM(li, 'a')[0].encode('utf-8')
+                    title = py2_encode(client.parseDOM(li, 'a')[0])
                     self.addDirectoryItem(title, 'movie&url=%s' % urllib.quote_plus(href), '', 'DefaultMovies.png')
             self.endDirectory('movies')
         else:
@@ -190,7 +196,7 @@ class navigator:
         try:
             direct_url = urlresolver.resolve(url)
             if direct_url:
-                direct_url = direct_url.encode('utf-8')
+                direct_url = py2_encode(direct_url)
             else:
                 direct_url = url
         except Exception as e:
@@ -206,7 +212,7 @@ class navigator:
         if thumb == '': thumb = icon
         cm = []
         if queue == True: cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
-        if not context == None: cm.append((context[0].encode('utf-8'), 'RunPlugin(%s?action=%s)' % (sysaddon, context[1])))
+        if not context == None: cm.append((py2_encode(context[0]), 'RunPlugin(%s?action=%s)' % (sysaddon, context[1])))
         item = xbmcgui.ListItem(label=name)
         item.addContextMenuItems(cm)
         item.setArt({'icon': thumb, 'thumb': thumb, 'poster': thumb, 'banner': banner})
