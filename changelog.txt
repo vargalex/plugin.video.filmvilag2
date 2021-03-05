@@ -1,4 +1,6 @@
-﻿[B]1.0.9[/B]
+﻿[B]1.0.10[/B]
+- bugfix
+[B]1.0.9[/B]
 - Matrix kompatibilitás
 [B]1.0.8[/B]
 - HTTP 404-et adnak vissza az oldalak
