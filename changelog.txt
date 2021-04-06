@@ -1,4 +1,6 @@
-﻿[B]1.0.10[/B]
+﻿[B]1.0.11[/B]
+- Keresési előzmények javítása
+[B]1.0.10[/B]
 - bugfix
 [B]1.0.9[/B]
 - Matrix kompatibilitás
