@@ -1,4 +1,6 @@
-﻿[B]1.0.13[/B]
+﻿[B]1.0.14[/B]
+- Nexus kompatibilitás
+[B]1.0.13[/B]
 - Átállás resolveurl-re
 [B]1.0.12[/B]
 - Profile path dekódolás
