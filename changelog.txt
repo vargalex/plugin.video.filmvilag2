@@ -1,4 +1,6 @@
-﻿[B]1.0.14[/B]
+﻿[B]1.0.15[/B]
+- BugFix, optimalizálás
+[B]1.0.14[/B]
 - Nexus kompatibilitás
 [B]1.0.13[/B]
 - Átállás resolveurl-re

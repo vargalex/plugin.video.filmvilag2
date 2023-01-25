@@ -17,9 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale
+import os,sys,re,xbmc,xbmcgui,xbmcplugin, time, locale
 import resolveurl as urlresolver
-from resources.lib.modules import client
+from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode
 
 if sys.version_info[0] == 3:
@@ -30,7 +30,7 @@ else:
     from urllib import quote_plus
 
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
-addonFanart = xbmcaddon.Addon().getAddonInfo('fanart')
+addonFanart = control.addonInfo('fanart')
 
 base_url = 'https://www.onlinefilmvilag2.eu/'
 
@@ -40,7 +40,7 @@ class navigator:
             locale.setlocale(locale.LC_ALL, "")
         except:
             pass
-        self.base_path = py2_decode(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')))
+        self.base_path = py2_decode(control.transPath(control.addonInfo('profile')))
         self.searchFileName = os.path.join(self.base_path, "search.history")
 
     def getCategories(self):
@@ -147,7 +147,7 @@ class navigator:
     def getMovie(self, url, thumb, duration):
         url_content = client.request('%s%s' %(base_url, url), error=True)
         if 'class="locked' in url_content:
-            password = xbmcaddon.Addon().getSetting('password')
+            password = control.setting('password')
             if password == '':
                 password = self.getText(u'Add meg a Cinema World facebook oldalról\nüzenetben kapott kódot!', True)
                 if password == '':
@@ -158,7 +158,7 @@ class navigator:
                 if password == '':
                     return
                 url_content = client.request('%s%s' %(base_url, url), post="password=%s&submit=Küldés" % password, error=True)
-            xbmcaddon.Addon().setSetting('password', password)
+            control.setSetting('password', password)
         article = client.parseDOM(url_content, 'div', attrs={'class': 'article'})[0]
         header = client.parseDOM(article, 'h2')[0]
         title = client.parseDOM(header, 'span')[0]
