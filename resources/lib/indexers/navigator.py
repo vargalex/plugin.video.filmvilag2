@@ -135,14 +135,17 @@ class navigator:
         ul = client.parseDOM(resultsUser, 'ul')
         if len(ul)>0:
             lis = client.parseDOM(ul, 'li')
+            linkCount = 0
             for li in lis:
                 href = client.parseDOM(li, 'a', ret='href')[0].replace('http://', 'https://').replace(base_url, '')
-                if "filmkeres-es-hibas-link-jelentese.html" not in href:
+                if "filmkeres-es-hibas-link-jelentese.html" not in href and "miert-van-kevesebb-tartalom-mostanaban-az-oldalon-.html" not in href:
+                    linkCount += 1
                     title = py2_encode(client.parseDOM(li, 'a')[0])
                     self.addDirectoryItem(title, 'movie&url=%s' % quote_plus(href), '', 'DefaultMovies.png')
-            self.endDirectory('movies')
-        else:
-            xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
+            if linkCount>1:
+                self.endDirectory('movies')
+                return
+        xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
 
     def getMovie(self, url, thumb, duration):
         url_content = client.request('%s%s' %(base_url, url), error=True)
