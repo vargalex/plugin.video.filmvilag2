@@ -142,7 +142,7 @@ class navigator:
                     linkCount += 1
                     title = py2_encode(client.parseDOM(li, 'a')[0])
                     self.addDirectoryItem(title, 'movie&url=%s' % quote_plus(href), '', 'DefaultMovies.png')
-            if linkCount>1:
+            if linkCount>0:
                 self.endDirectory('movies')
                 return
         xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
