@@ -147,7 +147,7 @@ class navigator:
         xbmcgui.Dialog().ok("OnlineFilmvilág2", "Nincs találat!")
 
     def getMovie(self, url, thumb, duration):
-        url_content = client.request('%s%s' %(base_url, url), error=True)
+        url_content = client.request('%s%s' %('' if url.startswith('http://') or url.startswith('https://') else base_url, url), error=True)
         if 'class="locked' in url_content:
             password = control.setting('password')
             if password == '':
