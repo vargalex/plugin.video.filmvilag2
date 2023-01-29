@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <category label="Bejelentkezés">
+	<category label="Általános">
+		<setting label="Weboldal címe:" type="text" id="base_url" default="https://onlinefilmvilag2.estranky.cz/"/>
         <setting label="Jelszó:" type="text" id="password" option="hidden" default=""/>
 	</category>
 </settings>

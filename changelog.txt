@@ -1,4 +1,6 @@
-﻿[B]1.0.17[/B]
+﻿[B]1.0.18[/B]
+- Weboldal URL módosítható a beállításokban
+[B]1.0.17[/B]
 - Keresés BugFix 1 találat esetén
 [B]1.0.16[/B]
 - Keresés javítása Matrix/Nexus esetén

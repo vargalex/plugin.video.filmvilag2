@@ -31,8 +31,7 @@ else:
 
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = control.addonInfo('fanart')
-
-base_url = 'https://www.onlinefilmvilag2.eu/'
+base_url = control.setting('base_url')
 
 class navigator:
     def __init__(self):
@@ -188,6 +187,9 @@ class navigator:
                 elif "</" not in paragraph:
                     plot = "%s%s%s" % (plot, "" if plot == "" else "\n", client.replaceHTMLCodes(paragraph))
             plot = plot.replace('&nbsp;', '')
+        matches = re.search(r'<img alt([^>]*)>(.*)', plot, re.S)
+        if matches:
+            plot = matches.group(2)
         sources = client.parseDOM(editorArea, 'iframe', ret='src')
         sources2 = client.parseDOM(editorArea, 'a', ret='href')
         banner = thumb
