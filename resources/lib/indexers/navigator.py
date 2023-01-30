@@ -96,7 +96,10 @@ class navigator:
         for article in articles:
             preview = client.parseDOM(article, 'div', attrs={'class': 'preview'})[0]
             href = client.parseDOM(article, 'a', ret='href')[0]
-            thumb = '%s%s' % (base_url, client.parseDOM(article, 'img', ret='src')[0])
+            try:
+                thumb = '%s%s' % (base_url, client.parseDOM(article, 'img', ret='src')[0])
+            except:
+                thumb = ''
             heading3 = client.parseDOM(article, 'h3')[0]
             title = py2_encode(client.parseDOM(heading3, 'a')[0])
             editorArea = py2_encode(client.replaceHTMLCodes(client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0])).strip()
