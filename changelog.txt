@@ -1,4 +1,6 @@
-﻿[B]1.0.20[/B]
+﻿[B]1.0.21[/B]
+- Adat kinyerés javítása
+[B]1.0.20[/B]
 - Host átállás bugfix: kép még nem mindenhol elérhető
 [B]1.0.19[/B]
 - Keresési eredmény megjelenítésének javítása

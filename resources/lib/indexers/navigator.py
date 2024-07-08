@@ -48,7 +48,7 @@ class navigator:
         menuItems = client.parseDOM(mainMenu, 'li')
         self.addDirectoryItem('Keresés', 'search', '', 'DefaultFolder.png')
         for menuItem in menuItems:
-            text = py2_encode(client.replaceHTMLCodes(client.parseDOM(menuItem, 'a')[0]))
+            text = py2_encode(client.replaceHTMLCodes(client.parseDOM(menuItem, 'a')[0])).strip()
             url = client.parseDOM(menuItem, 'a', ret='href')[0]
             if not text.startswith(('Kezdőlap', 'Kérjél', 'Támogatás', 'CHAT', 'Jogi nyilatkozat')):
                 self.addDirectoryItem(text, 'articles&url=%s' % url, '', 'DefaultFolder.png')
@@ -103,13 +103,13 @@ class navigator:
             heading3 = client.parseDOM(article, 'h3')[0]
             title = py2_encode(client.parseDOM(heading3, 'a')[0])
             editorArea = py2_encode(client.replaceHTMLCodes(client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0])).strip()
-            matches = re.search(r'^(.*)>(.*), ([0-9]*) perc,(.*)([1-2][0-9]{3})(.*)$', editorArea, re.S)
-            xtraInfo = re.search(r'^(.*)color: rgb\(255, 0, 0\)(.*)>(.*)</span>(.*)$', editorArea, re.S)
+            matches  = re.search(r".*>(.*?),[^0-9]*([0-9]+).*perc, *([1-2][0-9]{3})", editorArea, re.S)
+            xtraInfo = re.search(r'([0-9]+-[0-9]+.*rész)', editorArea, re.S)
             extraInfo = ""
             if xtraInfo != None:
-                extraInfo = " | [COLOR red]%s[/COLOR]" % xtraInfo.group(3)
+                extraInfo = " | [COLOR red]%s[/COLOR]" % client.replaceHTMLCodes(xtraInfo.group(1))
             if matches != None:
-                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(5), matches.group(2), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), quote_plus(matches.group(3))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(3))*60, 'fanart': thumb})
+                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(3), matches.group(1), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
             else:
                 matches = re.search(r'^(.*)>(.*),(.*)([1-2][0-9]{3})(.*)$', editorArea, re.S)
                 if matches != None:
