@@ -50,7 +50,7 @@ class navigator:
         for menuItem in menuItems:
             text = py2_encode(client.replaceHTMLCodes(client.parseDOM(menuItem, 'a')[0])).strip()
             url = client.parseDOM(menuItem, 'a', ret='href')[0]
-            if not text.startswith(('Kezdőlap', 'Kérjél', 'Támogatás', 'CHAT', 'Jogi nyilatkozat')):
+            if not text.startswith(('Kezdőlap', 'Kérjél', 'Támogatás', 'CHAT', 'Jogi nyilatkozat', 'Súgó', 'Munka', 'Letöltés')):
                 self.addDirectoryItem(text, 'articles&url=%s' % url, '', 'DefaultFolder.png')
         self.endDirectory()
 
@@ -103,17 +103,18 @@ class navigator:
             heading3 = client.parseDOM(article, 'h3')[0]
             title = py2_encode(client.parseDOM(heading3, 'a')[0])
             editorArea = py2_encode(client.replaceHTMLCodes(client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0])).strip()
-            matches  = re.search(r".*>(.*?),[^0-9]*([0-9]+).*perc[, ]*([1-2][0-9]{3})", editorArea, re.S)
+            #matches  = re.search(r".*>(.*?),[^0-9]*([0-9]+).*perc[, ]*([1-2][0-9]{3})", editorArea, re.S)
+            matches  = re.search(r".*>(.*?)([0-9]+).*?perc.*?([1-2][0-9]{3}).*?<", editorArea, re.S)
             xtraInfo = re.search(r'([0-9]+-[0-9]+.*rész)', editorArea, re.S)
             extraInfo = ""
             if xtraInfo != None:
                 extraInfo = " | [COLOR red]%s[/COLOR]" % client.replaceHTMLCodes(xtraInfo.group(1))
             if matches != None:
-                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(3), matches.group(1), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
+                self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(3), matches.group(1).strip().rstrip(","), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), quote_plus(matches.group(2))), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': int(matches.group(2))*60, 'fanart': thumb})
             else:
-                matches = re.search(r'^(.*)>(.*),(.*)([1-2][0-9]{3})(.*)$', editorArea, re.S)
+                matches = re.search(r'.*?">(.*?)([1-2][0-9]{3}).*?<', editorArea, re.S)
                 if matches != None:
-                    self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(4), matches.group(2), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
+                    self.addDirectoryItem('%s (%s) | [COLOR limegreen]%s[/COLOR]%s' % (title, matches.group(2), matches.group(1).strip().rstrip(","), extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
                 else:
                     self.addDirectoryItem('%s | %s' % (title, extraInfo), 'movie&url=%s&thumb=%s&duration=%s' % (href, quote_plus(thumb), "0"), thumb, 'DefaultMovies.png', meta={'title': title, 'duration': 0, 'fanart': thumb})
         listOfPages = client.parseDOM(articlesDiv, 'div', attrs={'class': 'list-of-pages'})

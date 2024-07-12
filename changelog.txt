@@ -1,4 +1,6 @@
-﻿[B]1.0.22[/B]
+﻿[B]1.0.23[/B]
+- Adat kinyerés javítása
+[B]1.0.22[/B]
 - Adat kinyerés javítása
 [B]1.0.21[/B]
 - Adat kinyerés javítása
