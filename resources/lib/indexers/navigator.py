@@ -103,7 +103,7 @@ class navigator:
             heading3 = client.parseDOM(article, 'h3')[0]
             title = py2_encode(client.parseDOM(heading3, 'a')[0])
             editorArea = py2_encode(client.replaceHTMLCodes(client.parseDOM(article, 'div', attrs={'class': 'editor-area'})[0])).strip()
-            matches  = re.search(r".*>(.*?),[^0-9]*([0-9]+).*perc, *([1-2][0-9]{3})", editorArea, re.S)
+            matches  = re.search(r".*>(.*?),[^0-9]*([0-9]+).*perc[, ]*([1-2][0-9]{3})", editorArea, re.S)
             xtraInfo = re.search(r'([0-9]+-[0-9]+.*rész)', editorArea, re.S)
             extraInfo = ""
             if xtraInfo != None:
