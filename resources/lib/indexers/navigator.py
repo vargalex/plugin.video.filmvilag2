@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import os,sys,re,xbmc,xbmcgui,xbmcplugin, time, locale
-import resolveurl as urlresolver
+import resolveurl
 from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode
 
@@ -206,16 +206,13 @@ class navigator:
     def playmovie(self, url):
         if "http" not in url:
             url = ("https:%s" % url)
-        xbmc.log('filmvilag: resolving url: %s' % url, xbmc.LOGINFO)
-        try:
-            direct_url = urlresolver.resolve(url)
+        direct_url = url.replace('&amp;', '&')
+        xbmc.log('filmvilag: resolving url: %s' % direct_url, xbmc.LOGINFO)
+        hmf = resolveurl.HostedMediaFile(direct_url)
+        if hmf:
+            direct_url = hmf.resolve(direct_url)
             if direct_url:
                 direct_url = py2_encode(direct_url)
-            else:
-                direct_url = url
-        except Exception as e:
-            xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, str(e))
-            return
         if direct_url:
             xbmc.log('filmvilag: playing URL: %s' % direct_url, xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)

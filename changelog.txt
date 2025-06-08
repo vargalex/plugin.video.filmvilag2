@@ -1,4 +1,7 @@
-﻿[B]1.0.23[/B]
+﻿[B]1.0.24[/B]
+- HTML encode-olt URL-ek kezelése
+- resolveURL használat update
+[B]1.0.23[/B]
 - Adat kinyerés javítása
 [B]1.0.22[/B]
 - Adat kinyerés javítása
